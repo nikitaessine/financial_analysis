@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Polygon Market Watcher</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h2>Polygon Market Watcher</h2>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <div class="row">
+      <input id="q" placeholder="Search ticker or index (e.g., AAPL, I:SPX, I:NDX)" />
+      <select id="market">
+        <option value="stocks" selected>Stocks</option>
+        <option value="indices">Indices</option>
+        <option value="fx">Forex</option>
+      </select>
+      <button id="btnSearch">Search</button>
+    </div>
+    <div class="muted" style="margin-top:6px;">Free-tier mode: results list shows only tickers; click a card to load data.</div>
+    <div id="banner"></div>
+    <div id="results" class="results"></div>
+  </div>
+
+  <!-- Detail Modal -->
+  <div id="detailModal" class="modal" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <div id="detailTicker" class="detail-ticker">—</div>
+          <div id="detailName" class="detail-name muted">—</div>
+        </div>
+        <button id="detailClose" class="btn-close" aria-label="Close">×</button>
+      </div>
+      <div class="tabs">
+        <button class="tab active" data-tab="overview">Overview</button>
+        <button class="tab" data-tab="trend">Trend</button>
+        <button class="tab" data-tab="comparative">Comparative</button>
+        <button class="tab" data-tab="ratios">Ratios</button>
+        <button class="tab" data-tab="variance">Variance</button>
+        <button class="tab" data-tab="regression">Regression</button>
+        <button class="tab" data-tab="movingavg">Moving Avg</button>
+      </div>
+      <div class="modal-body">
+        <div id="detailBanner"></div>
+
+        <!-- Overview content -->
+        <div class="tab-panel" id="panel-overview">
+          <div class="stat-row">
+            <div class="stat">
+              <div class="stat-label muted">Price</div>
+              <div id="detailPrice" class="stat-value">—</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label muted">1Y Change</div>
+              <div id="detailChange" class="stat-value">—</div>
+            </div>
+          </div>
+          <div id="detailLoading" class="loading">Loading…</div>
+          <canvas id="detailChart" class="detail-chart"></canvas>
+        </div>
+
+        <!-- Trend -->
+        <div class="tab-panel hidden" id="panel-trend">
+          <div class="muted" style="margin:6px 0">Month-to-month and year-to-year trends (daily closes aggregated).</div>
+          <canvas id="trendChart" class="detail-chart"></canvas>
+          <div id="trendText" class="bullets"></div>
+        </div>
+
+        <!-- Comparative -->
+        <div class="tab-panel hidden" id="panel-comparative">
+          <div class="muted" style="margin:6px 0">Year-over-year and quarter-over-quarter change.</div>
+          <canvas id="comparativeChart" class="detail-chart"></canvas>
+          <div id="comparativeText" class="bullets"></div>
+        </div>
+
+        <!-- Ratios -->
+        <div class="tab-panel hidden" id="panel-ratios">
+          <div class="muted" style="margin:6px 0">52-week stats and moving-average ratios.</div>
+          <canvas id="ratiosChart" class="detail-chart"></canvas>
+          <div id="ratiosText" class="bullets"></div>
+        </div>
+
+        <!-- Variance -->
+        <div class="tab-panel hidden" id="panel-variance">
+          <div class="muted" style="margin:6px 0">Monthly return vs long-run average; z-score of the latest month.</div>
+          <canvas id="varianceChart" class="detail-chart"></canvas>
+          <div id="varianceText" class="bullets"></div>
+        </div>
+
+        <!-- Regression -->
+        <div class="tab-panel hidden" id="panel-regression">
+          <div class="muted" style="margin:6px 0">Daily returns regression vs S&P 500 (I:SPX): beta, alpha, R².</div>
+          <canvas id="regressionChart" class="detail-chart"></canvas>
+          <div id="regressionText" class="bullets"></div>
+        </div>
+
+        <!-- Moving Avg -->
+        <div class="tab-panel hidden" id="panel-movingavg">
+          <div class="muted" style="margin:6px 0">Smoothed trend with 50-day and 200-day moving averages.</div>
+          <canvas id="maChart" class="detail-chart"></canvas>
+          <div id="maText" class="bullets"></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
