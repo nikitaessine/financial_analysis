@@ -22,9 +22,15 @@
         <option value="fx">Forex</option>
       </select>
       <button id="btnSearch">Search</button>
+      <button id="btnLoadWL">Watchlist</button>
     </div>
-    <div class="muted" style="margin-top:6px;">Free-tier mode: results list shows only tickers; click a card to load data.</div>
+    <div class="muted" style="margin-top:6px;">Free-tier mode: results show only tickers. Click a card to open details. Use ★ to add/remove from watchlist.</div>
     <div id="banner"></div>
+
+    <h4>Watchlist</h4>
+    <div id="watchlist" class="results"></div>
+
+    <h4>Results</h4>
     <div id="results" class="results"></div>
   </div>
 
@@ -36,8 +42,25 @@
           <div id="detailTicker" class="detail-ticker">—</div>
           <div id="detailName" class="detail-name muted">—</div>
         </div>
-        <button id="detailClose" class="btn-close" aria-label="Close">×</button>
+        <div class="header-actions">
+          <button id="btnWatch" class="icon-btn" title="Toggle watchlist">☆</button>
+          <button id="btnAlerts" class="icon-btn" title="Configure alerts">🔔</button>
+          <button id="detailClose" class="btn-close" aria-label="Close">×</button>
+        </div>
       </div>
+
+      <!-- Alerts panel (inline, toggled) -->
+      <div id="alertsPanel" class="alerts-panel hidden">
+        <div class="row wrap-row">
+          <label class="chk"><input type="checkbox" id="alert_ma200"> Cross MA200</label>
+          <label class="chk"><input type="checkbox" id="alert_52h"> New 52-week High</label>
+          <label class="chk"><input type="checkbox" id="alert_52l"> New 52-week Low</label>
+          <label class="chk">Day drop ≥ <input id="alert_drop" type="number" min="1" step="0.5" value="3" style="width:70px"> %</label>
+          <button id="alertsSave">Save Alerts</button>
+        </div>
+        <div class="muted">Emails will be sent to the configured address when conditions trigger.</div>
+      </div>
+
       <div class="tabs">
         <button class="tab active" data-tab="overview">Overview</button>
         <button class="tab" data-tab="trend">Trend</button>
@@ -50,64 +73,66 @@
       <div class="modal-body">
         <div id="detailBanner"></div>
 
-        <!-- Overview content -->
+        <!-- Overview -->
         <div class="tab-panel" id="panel-overview">
           <div class="stat-row">
-            <div class="stat">
-              <div class="stat-label muted">Price</div>
-              <div id="detailPrice" class="stat-value">—</div>
-            </div>
-            <div class="stat">
-              <div class="stat-label muted">1Y Change</div>
-              <div id="detailChange" class="stat-value">—</div>
-            </div>
+            <div class="stat"><div class="stat-label muted">Price</div><div id="detailPrice" class="stat-value">—</div></div>
+            <div class="stat"><div class="stat-label muted">1Y Change</div><div id="detailChange" class="stat-value">—</div></div>
           </div>
           <div id="detailLoading" class="loading">Loading…</div>
-          <canvas id="detailChart" class="detail-chart"></canvas>
+          <div class="canvas-wrap"><canvas id="detailChart" class="detail-chart"></canvas><div class="tooltip" id="tip-detail"></div></div>
         </div>
 
         <!-- Trend -->
         <div class="tab-panel hidden" id="panel-trend">
-          <div class="muted" style="margin:6px 0">Month-to-month and year-to-year trends (daily closes aggregated).</div>
-          <canvas id="trendChart" class="detail-chart"></canvas>
+          <div class="muted" style="margin:6px 0">Month-to-month and year-to-year trends.</div>
+          <div class="canvas-wrap"><canvas id="trendChart" class="detail-chart"></canvas><div class="tooltip" id="tip-trend"></div></div>
           <div id="trendText" class="bullets"></div>
         </div>
 
         <!-- Comparative -->
         <div class="tab-panel hidden" id="panel-comparative">
           <div class="muted" style="margin:6px 0">Year-over-year and quarter-over-quarter change.</div>
-          <canvas id="comparativeChart" class="detail-chart"></canvas>
+          <div class="canvas-wrap"><canvas id="comparativeChart" class="detail-chart"></canvas><div class="tooltip" id="tip-comparative"></div></div>
           <div id="comparativeText" class="bullets"></div>
         </div>
 
         <!-- Ratios -->
         <div class="tab-panel hidden" id="panel-ratios">
-          <div class="muted" style="margin:6px 0">52-week stats and moving-average ratios.</div>
-          <canvas id="ratiosChart" class="detail-chart"></canvas>
+          <div class="muted" style="margin:6px 0">52-week stats and MA ratios.</div>
+          <div class="canvas-wrap"><canvas id="ratiosChart" class="detail-chart"></canvas><div class="tooltip" id="tip-ratios"></div></div>
           <div id="ratiosText" class="bullets"></div>
         </div>
 
         <!-- Variance -->
         <div class="tab-panel hidden" id="panel-variance">
-          <div class="muted" style="margin:6px 0">Monthly return vs long-run average; z-score of the latest month.</div>
-          <canvas id="varianceChart" class="detail-chart"></canvas>
+          <div class="muted" style="margin:6px 0">Monthly return vs average; z-score.</div>
+          <div class="canvas-wrap"><canvas id="varianceChart" class="detail-chart"></canvas><div class="tooltip" id="tip-variance"></div></div>
           <div id="varianceText" class="bullets"></div>
         </div>
 
-        <!-- Regression -->
+        <!-- Regression (with benchmark picker) -->
         <div class="tab-panel hidden" id="panel-regression">
-          <div class="muted" style="margin:6px 0">Daily returns regression vs S&P 500 (I:SPX): beta, alpha, R².</div>
-          <canvas id="regressionChart" class="detail-chart"></canvas>
+          <div class="row wrap-row" style="gap:8px;margin:6px 0;">
+            <label>Benchmark:
+              <select id="benchmark">
+                <option value="I:SPX">I:SPX (S&P 500)</option>
+                <option value="SPY">SPY (S&P 500 ETF)</option>
+                <option value="I:NDX">I:NDX (Nasdaq 100)</option>
+                <option value="QQQ">QQQ (Nasdaq 100 ETF)</option>
+              </select>
+            </label>
+          </div>
+          <div class="canvas-wrap"><canvas id="regressionChart" class="detail-chart"></canvas><div class="tooltip" id="tip-regression"></div></div>
           <div id="regressionText" class="bullets"></div>
         </div>
 
         <!-- Moving Avg -->
         <div class="tab-panel hidden" id="panel-movingavg">
-          <div class="muted" style="margin:6px 0">Smoothed trend with 50-day and 200-day moving averages.</div>
-          <canvas id="maChart" class="detail-chart"></canvas>
+          <div class="muted" style="margin:6px 0">Smoothed trend with 50/200-day MAs.</div>
+          <div class="canvas-wrap"><canvas id="maChart" class="detail-chart"></canvas><div class="tooltip" id="tip-ma"></div></div>
           <div id="maText" class="bullets"></div>
         </div>
-
       </div>
     </div>
   </div>

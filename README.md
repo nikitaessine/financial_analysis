@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Polygon Market Watcher (Modular Flask)
 
 A small Flask app (modular structure) that searches tickers via Polygon, shows a latest price (best-effort), and renders a 1-day sparkline from minute aggregates.
@@ -42,3 +43,6 @@ python app.py
 ## Next steps
 - Add alert rules + notifications (Telegram/Email).
 - Add watchlists and multi-interval charts.
+=======
+# financial_analysis
+>>>>>>> e4dd1a1083859ee0d54c7a055b73b49cce615cd3
